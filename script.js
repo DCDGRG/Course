@@ -130,15 +130,22 @@ function remove(file, courseID) {
 }
 
 function readData(file) {
-  let data;
+  let data, content;
   const fs = require("fs");
-  const content = fs.readFileSync(file, "utf8");
   try {
+    content = fs.readFileSync(file, "utf8");
     data = JSON.parse(content);
   } catch (e) {
-    console.log("Warning: parse file error");
+    if (e.code === "ENOENT") {  // file not exist
+      console.log("==>Warning: \n\tFile not found: " + file);
+      console.log("\tI will create a new one.")
+    } else if (e instanceof SyntaxError) {  // file is empty
+      console.log("==>Warning: \n\tFile is not a valid JSON file: " + file);
+    }
+    return undefined;
   }
-  return data;
+}
+return data;
 }
 
 function sortObjByKey(obj) {
