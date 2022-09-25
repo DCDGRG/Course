@@ -137,10 +137,10 @@ function readData(file) {
     data = JSON.parse(content);
   } catch (e) {
     if (e.code === "ENOENT") {  // file not exist
-      console.log("==> Warning: \n".yellow + "\tFile not found: " + file);
+      console.log("==> " + "Warning: \n".yellow + "\tFile not found: " + file);
       console.log("\tI will create a new one.")
     } else if (e instanceof SyntaxError) {  // file is empty
-      console.log("==> Warning: \n".yellow + "\tFile is not a valid JSON file: " + file);
+      console.log("==> " + "Warning: \n".yellow + "\tFile is not a valid JSON file: " + file);
     }
     return undefined;
   }
