@@ -137,15 +137,14 @@ function readData(file) {
     data = JSON.parse(content);
   } catch (e) {
     if (e.code === "ENOENT") {  // file not exist
-      console.log("==>Warning: \n\tFile not found: " + file);
+      console.log("==> Warning: \n".yellow + "\tFile not found: " + file);
       console.log("\tI will create a new one.")
     } else if (e instanceof SyntaxError) {  // file is empty
-      console.log("==>Warning: \n\tFile is not a valid JSON file: " + file);
+      console.log("==> Warning: \n".yellow + "\tFile is not a valid JSON file: " + file);
     }
     return undefined;
   }
-}
-return data;
+  return data;
 }
 
 function sortObjByKey(obj) {
@@ -282,7 +281,7 @@ function add(file, courseID, s, option = "--adapt") {
     const prettier = require("prettier");
     data = prettier.format(data, { semi: false, parser: "json" });
   } catch (e) {
-    console.log("notice: Prettier error".gray);
+    console.log("Notice: Prettier error".gray);
   }
 
   // 写入文件
@@ -307,7 +306,7 @@ function add(file, courseID, s, option = "--adapt") {
 
 function showUsage() {
   console.log(
-    'Usage: node script.js <file> <courseWeek-week[-n]> "JSON" [--mobile|--teacherTrack|--pptVideo]'
+    "Usage: node script.js <file> <courseWeek-week[-n]> 'JSON' [--mobile|--teacherTrack|--pptVideo]"
   );
   console.log("       node script.js show <file> <courseWeek-week[-n]>|<ls>");
   console.log("       node script.js rm   <file> <courseWeek-week[-n]>");
