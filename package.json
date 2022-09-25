@@ -1,5 +1,15 @@
 {
   "dependencies": {
-    "colors": "^1.4.0"
-  }
+    "colors": "^1.4.0",
+    "readline-sync": "^1.4.10"
+  },
+  "name": "lecture-recordings",
+  "version": "1.0.0",
+  "description": "记录超星录直播课程中的课程链接",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "李潇",
+  "license": "ISC"
 }

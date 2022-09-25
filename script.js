@@ -71,7 +71,6 @@ switch (args[0]) {
 function show(file, courseID) {
   let data = readData(file);
   if (data === undefined) {
-    console.log("Empty file");
     process.exit(1);
   }
   if (courseID === "ls") {
@@ -85,24 +84,23 @@ function show(file, courseID) {
     console.log("No data");
     process.exit(1);
   }
-  console.log("--------------------------------------------------------");
+  console.log("--------------------------------------------------------------------------------");
   if (courseClass !== courseID) {
     // 如果指定了课程序号，则只显示该序号对应的 URL 。
     const num = parseInt(courseID.split("-")[2]);
     console.log(data[courseClass][num - 1]);
-    console.log("--------------------------------------------------------");
+    console.log("--------------------------------------------------------------------------------");
     return;
   }
   for (let url of data[courseClass]) {
     console.log(url);
-    console.log("--------------------------------------------------------");
+    console.log("--------------------------------------------------------------------------------");
   }
 }
 
 function remove(file, courseID) {
   let data = readData(file);
   if (data === undefined) {
-    console.log("Empty file");
     process.exit(1);
   }
   const courseClass = getCourseClass(courseID);
@@ -138,7 +136,6 @@ function readData(file) {
   } catch (e) {
     if (e.code === "ENOENT") {  // file not exist
       console.log("==> " + "Warning: \n".yellow + "\tFile not found: " + file);
-      console.log("\tI will create a new one.")
     } else if (e instanceof SyntaxError) {  // file is empty
       console.log("==> " + "Warning: \n".yellow + "\tFile is not a valid JSON file: " + file);
     }
@@ -186,7 +183,7 @@ function add(file, courseID, s, option = "--adapt") {
   try {
     obj = JSON.parse(s);
     if (!obj.hasOwnProperty("videoPath")) {
-      console.log("Error: no videoPath");
+      console.log("==> " + "Error:\n".red + "\tNo video path not found.");
       process.exit(1);
     }
     if (obj.videoPath.hasOwnProperty(option)) {
@@ -194,28 +191,29 @@ function add(file, courseID, s, option = "--adapt") {
     } else {
       if (Object.keys(obj.videoPath).length === 1) {
         url = obj.videoPath[Object.keys(obj.videoPath)[0]];
+        console.log("==> " + "Warning:\n".yellow + "\tNo video path for " + option + " found, used " + Object.keys(obj.videoPath)[0] + " instead.");
       } else {
-        console.log("Can't find " + option + " property");
-        console.log("You can try:");
+        console.log("==> " + "Warning:\n".yellow + "\tNo video path for " + option + " found.");
+        console.log("\tYou can try with:\n\t");
         for (let key in obj.videoPath) {
-          console.log(key);
+          console.log(key + " ");
         }
         const readlineSync = require("readline-sync");
-        option = readlineSync.question("Which one do you want to use?\n");
+        option = readlineSync.question("\tWhich one do you prefer?\n");
         if (obj.videoPath.hasOwnProperty(option)) {
           url = obj.videoPath[option];
         } else {
-          console.log("Error: no such videoPath");
+          console.log("==> " + "Error:\n".red + "\tNo such videoPath.");
           process.exit(1);
         }
       }
     }
   } catch (e) {
-    if (isURL(s)) {
+    let ans = readlineSync.question("\t==> " + "Warning:\n".yellow + "\tJSON parse failed. Do you want to add the content anyway? [Y/n]\n");
+    if ((ans === "y") || (ans === "Y")) {
       url = s;
     } else {
-      console.log("Parse error");
-      process.exit(1);
+      process.exit(0);
     }
   }
   let data = readData(file);
@@ -224,64 +222,74 @@ function add(file, courseID, s, option = "--adapt") {
   let num = parseInt(split[2]);
   if (data === undefined) {
     data = {};
-  }
-  // 检查重复
-  for (let courseID in data) {
-    let res = data[courseID].findIndex((_url, index) => _url === url);
-    if (res !== -1) {
-      console.log("Duplicated with " + courseID + "-" + (res + 1));
-      process.exit(1);
-    }
-  }
-  // 如果 courseClass 已经存在
-  if (data.hasOwnProperty(courseClass)) {
-    if (!num) {
-      // 没有指定序号
-      if (!data[courseClass][0]) {
-        num = 1;
-        console.log("Course will be added at " + courseClass + "-1");
-      } else if (!data[courseClass][1]) {
-        num = 2;
-        console.log("Course will be added at " + courseClass + "-2");
-      } else {
-        // 已记录课程大于等于 2
-        readlineSync = require("readline-sync");
-        let ans = readlineSync.question(
-          courseClass +
-          "-1 and " +
-          courseClass +
-          "-2 already exist, where do you want to add? [n]\nEnter q to cancel.\n"
-        );
-        if (ans === "q") {
-          return;
-        }
-        num = parseInt(ans);
-        if (isNaN(num)) {
-          console.log("Error: invalid number");
-          process.exit(1);
-        }
-      }
-    }
-    data[courseClass][num - 1] = url;
-  } else {
-    // 如果 courseClass 不存在，则创建课程类别。
     data[courseClass] = [];
     if (!num) {
       // 如果没有指定序号，则默认放到第一个。
       num = 1;
-      console.log("Course will be added at " + courseClass + "-1");
+      console.log("Course added at " + courseClass + "-1");
     }
     data[courseClass][num - 1] = url;
+    data = sortObjByKey(data);
+  } else {
+    // 检查重复
+    for (let courseID in data) {
+      let res = data[courseID].findIndex((_url, index) => _url === url);
+      if (res !== -1) {
+        console.log("==> " + "Warning:\n".red + "\tDuplicated with " + courseID + "-" + (res + 1));
+        process.exit(1);
+      }
+    }
+    // 如果 courseClass 已经存在
+    if (data.hasOwnProperty(courseClass)) {
+      if (!num) {
+        // 没有指定序号
+        if (!data[courseClass][0]) {
+          num = 1;
+          console.log("Course added at " + courseClass + "-1");
+        } else if (!data[courseClass][1]) {
+          num = 2;
+          console.log("Course added at " + courseClass + "-2");
+        } else {
+          // 已记录课程大于等于 2
+          readlineSync = require("readline-sync");
+          let ans = readlineSync.question(
+            "==> " +
+            "Warning:\n\t".yellow +
+            courseClass +
+            "-1 and " +
+            courseClass +
+            "-2 already exist, where do you want to add? [n]\n\tEnter q to cancel.\n"
+          );
+          if (ans === "q") {
+            return;
+          }
+          num = parseInt(ans);
+          if (isNaN(num)) {
+            console.log("==> " + "Error:\n".red + "\tInvalid number");
+            process.exit(1);
+          }
+        }
+      }
+      data[courseClass][num - 1] = url;
+    } else {
+      // 如果 courseClass 不存在，则创建课程类别。
+      data[courseClass] = [];
+      if (!num) {
+        // 如果没有指定序号，则默认放到第一个。
+        num = 1;
+        console.log("Course added at " + courseClass + "-1");
+      }
+      data[courseClass][num - 1] = url;
+    }
+    data = sortObjByKey(data);
   }
-  data = sortObjByKey(data);
-
   // 格式美化
   try {
     data = JSON.stringify(data, null, "    ");
     const prettier = require("prettier");
     data = prettier.format(data, { semi: false, parser: "json" });
   } catch (e) {
-    console.log("Notice: Prettier error".gray);
+    console.log("==> " + "Notice:\n".gray + "\tPrettier error");
   }
 
   // 写入文件
@@ -320,25 +328,10 @@ function getCourseClass(courseID) {
   return courseClass;
 }
 
+// 在这里编辑课程的默认视频类型
 function adaptOption(file) {
   switch (file) {
-    case oop:
-      return "mobile";
-    case rg:
-      return "teacherTrack";
     default:
       return "mobile";
-  }
-}
-
-function isURL(str) {
-  // 判断 URL 地址的正则表达式为：http(s)?://([\w-]+\.)+[\w-]+(/[\w- ./?%&=]*)?
-  // 下面的代码中应用了转义字符 "\" 输出一个字符 "/"
-  let Expression = /http:\/\/([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=]*)?/;
-  let objExp = new RegExp(Expression);
-  if (objExp.test(str) == true) {
-    return true;
-  } else {
-    return false;
   }
 }
