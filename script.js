@@ -226,7 +226,6 @@ function add(file, courseID, s, option = "--adapt") {
     if (!num) {
       // 如果没有指定序号，则默认放到第一个。
       num = 1;
-      console.log("Course added at " + courseClass + "-1");
     }
     data[courseClass][num - 1] = url;
     data = sortObjByKey(data);
@@ -245,10 +244,8 @@ function add(file, courseID, s, option = "--adapt") {
         // 没有指定序号
         if (!data[courseClass][0]) {
           num = 1;
-          console.log("Course added at " + courseClass + "-1");
         } else if (!data[courseClass][1]) {
           num = 2;
-          console.log("Course added at " + courseClass + "-2");
         } else {
           // 已记录课程大于等于 2
           readlineSync = require("readline-sync");
@@ -277,7 +274,6 @@ function add(file, courseID, s, option = "--adapt") {
       if (!num) {
         // 如果没有指定序号，则默认放到第一个。
         num = 1;
-        console.log("Course added at " + courseClass + "-1");
       }
       data[courseClass][num - 1] = url;
     }
@@ -300,14 +296,15 @@ function add(file, courseID, s, option = "--adapt") {
       process.exit(1);
     }
     console.log(
-      "Success with " +
-      option +
-      " mode at " +
+      "==> " + "Successfully added " +
       file.slice(0, file.indexOf(".")) +
       " " +
       courseClass +
       "-" +
-      num
+      num +
+      " with "
+      option +
+      " mode."
     );
   });
 }
