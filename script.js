@@ -302,7 +302,7 @@ function add(file, courseID, s, option = "--adapt") {
       courseClass +
       "-" +
       num +
-      " with "
+      " with " +
       option +
       " mode."
     );
