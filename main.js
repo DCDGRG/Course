@@ -332,8 +332,8 @@ function showUsage() {
   console.log(
     "Usage: node main.js <file> <courseWeek-week[-n]> 'JSON|URL' [--mobile|--teacherTrack|--pptVideo]"
   );
-  console.log("       node script.js show <file> <courseWeek-week[-n]>|<ls>");
-  console.log("       node script.js rm   <file> <courseWeek-week[-n]>");
+  console.log("       node node.js show <file> <courseWeek-week[-n]>|<ls>");
+  console.log("       node node.js rm   <file> <courseWeek-week[-n]>");
   console.log("<file>: oop = 面向对象程序设计; rg = 软件工程概论; db = 数据库系统; jz = 计算机组成与结构; dm = 数据管理技术; cm = 通信技术基础; bg = 海量数据管理");
 }
 
