@@ -330,7 +330,7 @@ function add(file, courseID, s, option = "--adapt") {
 
 function showUsage() {
   console.log(
-    "Usage: node script.js <file> <courseWeek-week[-n]> 'JSON|URL' [--mobile|--teacherTrack|--pptVideo]"
+    "Usage: node main.js <file> <courseWeek-week[-n]> 'JSON|URL' [--mobile|--teacherTrack|--pptVideo]"
   );
   console.log("       node script.js show <file> <courseWeek-week[-n]>|<ls>");
   console.log("       node script.js rm   <file> <courseWeek-week[-n]>");
