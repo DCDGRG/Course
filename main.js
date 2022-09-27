@@ -5,7 +5,10 @@ const jz = "计算机组成与结构.json";
 const dm = "数据管理技术.json";
 const cm = "通信技术基础.json";
 const bg = "海量数据管理.json";
-const colors = require("colors");
+
+const color = require("colors");
+const spawnSync = require("child_process").spawnSync;
+const readlineSync = require("readline-sync");
 
 // main
 if (process.argv.length !== 5 && process.argv.length !== 6) {
@@ -15,7 +18,7 @@ if (process.argv.length !== 5 && process.argv.length !== 6) {
 // get args
 const args = process.argv.slice(2);
 let file, courseID, json;
-if (args[0] === "show" || args[0] === "rm") {
+if (args[0] === "show" || args[0] === "rm" || args[0] === "download") {
   file = args[1];
   courseID = args[2];
 } else {
@@ -49,13 +52,16 @@ switch (file) {
     showUsage();
     process.exit(1);
 }
-// process
+// processing
 switch (args[0]) {
   case "show":
     show(file, courseID);
     break;
   case "rm":
     remove(file, courseID);
+    break;
+  case "download":
+    download(file, courseID);
     break;
   default:
     if (args.length === 4) {
@@ -81,7 +87,7 @@ function show(file, courseID) {
   }
   const courseClass = getCourseClass(courseID);
   if (!data.hasOwnProperty(courseClass)) {
-    console.log("No data");
+    console.log("==> " + "Error\n".red + "\tNo data");
     process.exit(1);
   }
   console.log("--------------------------------------------------------------------------------");
@@ -120,9 +126,9 @@ function remove(file, courseID) {
     }
     const fs = require("fs");
     fs.writeFileSync(file, JSON.stringify(data, null, "  "));
-    console.log("success");
+    console.log("==> " + "Success\n".green + "\tSuccessfully removed " + file.slice(0, file.indexOf(".")) + " " + courseID);
   } else {
-    console.log("No data");
+    console.log("==> " + "Error\n".red + "\tNo data");
     process.exit(1);
   }
 }
@@ -180,40 +186,53 @@ function add(file, courseID, s, option = "--adapt") {
       process.exit(1);
   }
   let obj, url;
-  try {
-    obj = JSON.parse(s);
-    if (!obj.hasOwnProperty("videoPath")) {
-      console.log("==> " + "Error:\n".red + "\tNo video path not found.");
+  courseUrlRegExpr = /^(?:http:\/\/newesxidian\.chaoxing\.com\/live\/viewNewCourseLive1\?isStudent=1&liveId=)\d+$/  // 测试是否为课程回放页面 URL
+  videoUrlRegExpr = /^(?:http:\/\/vodvtdu\d\.xidian\.edu\.cn:8092\/file\/cloud:\/\/10.168.76.10:6201\/HIKCLOUD\/accessid\/NUVQYWFpMEp6c0ppVVJkdFVMbDc5N3VVZjU1MWw4Szc2ODEyOGYyejdHNzkxN2FJMlhYNmQyNzQ0ZDNpTDM2\/accesskey\/a3gxcEs3SVNiN1lCeTFoOW80OThPb3o4N3I3R3hBQnpFajY3NUk3NVJ6VDdUNDdubTQ4UzQxNDUwN3RRZDJN\/bucket\/bucket\/key\/)[a-z0-9]+\/[0-9]\/\d+\/\d+\/\d(?:\/playback\.m3u8)$/  // 测试是否为 m3u8 URL
+  s = s.replace(/\\/g, "");  // 去掉 s 中的反斜杠
+  if (courseUrlRegExpr.test(s)) {  // 输入课程回放 URL
+    const pythonProcess = spawnSync('python3', ["./main.py", "get_url", s]);
+    url = pythonProcess.stdout.toString().trim();
+    if (url === "False") {
+      console.log("==> " + "Error\n".red + "\tCouldn't get m3u8 URL. May be try again tomorrow.");
       process.exit(1);
     }
-    if (obj.videoPath.hasOwnProperty(option)) {
-      url = obj.videoPath[option];
-    } else {
-      if (Object.keys(obj.videoPath).length === 1) {
-        url = obj.videoPath[Object.keys(obj.videoPath)[0]];
-        console.log("==> " + "Warning:\n".yellow + "\tNo video path for " + option + " found, used " + Object.keys(obj.videoPath)[0] + " instead.");
+  } else if (videoUrlRegExpr.test(s)) {  // 输入 m3u8 URL
+    url = s;
+  } else {
+    try {
+      obj = JSON.parse(s);
+      if (!obj.hasOwnProperty("videoPath")) {
+        console.log("==> " + "Error\n".red + "\tVideo path not found.");
+        process.exit(1);
+      }
+      if (obj.videoPath.hasOwnProperty(option)) {
+        url = obj.videoPath[option];
       } else {
-        console.log("==> " + "Warning:\n".yellow + "\tNo video path for " + option + " found.");
-        console.log("\tYou can try with:\n\t");
-        for (let key in obj.videoPath) {
-          console.log(key + " ");
-        }
-        const readlineSync = require("readline-sync");
-        option = readlineSync.question("\tWhich one do you prefer?\n");
-        if (obj.videoPath.hasOwnProperty(option)) {
-          url = obj.videoPath[option];
+        if (Object.keys(obj.videoPath).length === 1) {
+          url = obj.videoPath[Object.keys(obj.videoPath)[0]];
+          console.log("==> " + "Warning:\n".yellow + "\tNo video path for " + option + " found, used " + Object.keys(obj.videoPath)[0] + " instead.");
         } else {
-          console.log("==> " + "Error:\n".red + "\tNo such videoPath.");
-          process.exit(1);
+          console.log("==> " + "Warning:\n".yellow + "\tNo video path for " + option + " found.");
+          console.log("\tYou can try with:\n\t");
+          for (let key in obj.videoPath) {
+            console.log(key + " ");
+          }
+          option = readlineSync.question("\tWhich one do you prefer?\n");
+          if (obj.videoPath.hasOwnProperty(option)) {
+            url = obj.videoPath[option];
+          } else {
+            console.log("==> " + "Error\n".red + "\tNo such videoPath.");
+            process.exit(1);
+          }
         }
       }
-    }
-  } catch (e) {
-    let ans = readlineSync.question("\t==> " + "Warning:\n".yellow + "\tJSON parse failed. Do you want to add the content anyway? [Y/n]\n");
-    if ((ans === "y") || (ans === "Y")) {
-      url = s;
-    } else {
-      process.exit(0);
+    } catch (e) {
+      let ans = readlineSync.question("==> " + "Warning:\n".yellow + "\tJSON parse failed. Do you want to add the content anyway? [Y/n]\n");
+      if ((ans === "y") || (ans === "Y")) {
+        url = s;
+      } else {
+        process.exit(0);
+      }
     }
   }
   let data = readData(file);
@@ -262,7 +281,7 @@ function add(file, courseID, s, option = "--adapt") {
           }
           num = parseInt(ans);
           if (isNaN(num)) {
-            console.log("==> " + "Error:\n".red + "\tInvalid number");
+            console.log("==> " + "Error\n".red + "\tInvalid number");
             process.exit(1);
           }
         }
@@ -296,7 +315,7 @@ function add(file, courseID, s, option = "--adapt") {
       process.exit(1);
     }
     console.log(
-      "==> " + "Successfully added " +
+      "==> " + "Success\n".green + "\tSuccessfully added " +
       file.slice(0, file.indexOf(".")) +
       " " +
       courseClass +
@@ -311,7 +330,7 @@ function add(file, courseID, s, option = "--adapt") {
 
 function showUsage() {
   console.log(
-    "Usage: node script.js <file> <courseWeek-week[-n]> 'JSON' [--mobile|--teacherTrack|--pptVideo]"
+    "Usage: node script.js <file> <courseWeek-week[-n]> 'JSON|URL' [--mobile|--teacherTrack|--pptVideo]"
   );
   console.log("       node script.js show <file> <courseWeek-week[-n]>|<ls>");
   console.log("       node script.js rm   <file> <courseWeek-week[-n]>");
@@ -330,5 +349,35 @@ function adaptOption(file) {
   switch (file) {
     default:
       return "mobile";
+  }
+}
+
+function download(file, courseID) {
+  let data = readData(file);
+  if (data === undefined) {
+    process.exit(1);
+  }
+  const courseClass = getCourseClass(courseID);
+  if (!data.hasOwnProperty(courseClass)) {
+    console.log("==> " + "Error\n".red + "\tNo data");
+    process.exit(1);
+  }
+  console.log("==> " + "Downloading ".green + file.slice(0, file.indexOf(".")) + " " + courseID);
+  if (courseClass !== courseID) {
+    // 如果指定了课程序号，则只下载该序号对应的课程视频
+    const num = parseInt(courseID.split("-")[2]);
+    url = data[courseClass][num - 1];
+    if (url) {
+      spawnSync('python3', ["./main.py", "download", url, file.slice(0, file.indexOf(".")) + courseID + ".mp4"], { stdio: 'inherit' });
+    } else {
+      console.log("==> " + "Error\n".red + "\tNo data");
+      process.exit(1);
+    }
+  } else {
+    for (let url of data[courseClass]) {
+      if (url) {
+        spawnSync('python3', ["./main.py", "download", url, file.slice(0, file.indexOf(".")) + courseClass + "-" + (data[courseClass].indexOf(url) + 1) + ".mp4"], { stdio: 'inherit' });
+      }
+    }
   }
 }

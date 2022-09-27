@@ -1,0 +1,4 @@
+gevent==21.12.0
+m3u8==3.3.0
+requests==2.25.1
+selenium==3.141.0

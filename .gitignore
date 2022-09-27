@@ -1,5 +1,9 @@
 *
-!script.js
+!.gitignore
 !package.json
 !package-lock.json
-!.gitignore
+!main.js
+!requirements.txt
+!main.py
+!m3u8_downloader.py
+!selenium_get_url.py
