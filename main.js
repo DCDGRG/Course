@@ -373,7 +373,7 @@ function parseJSON(s, option) {
     if ((ans === "y") || (ans === "Y")) {
       url = s;
     } else {
-      process.exit(0);
+      process.exit(1);
     }
   }
   return url;
