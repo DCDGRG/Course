@@ -76,7 +76,11 @@ switch (args[0]) {
 
 function show(file, courseID) {
   let data = readData(file);
-  if (data === undefined) {
+  if (data === "fileNotFound") {
+    console.log("==> " + "Error\n".red + "\tFile not found: " + file);
+    process.exit(1);
+  } else if (data === "jsonParseError") {
+    console.log("==> " + "Error\n".red + "\tJSON parse error: " + file);
     process.exit(1);
   }
   if (courseID === "ls") {
@@ -106,7 +110,11 @@ function show(file, courseID) {
 
 function remove(file, courseID) {
   let data = readData(file);
-  if (data === undefined) {
+  if (data === "fileNotFound") {
+    console.log("==> " + "Error\n".red + "\tFile not found: " + file);
+    process.exit(1);
+  } else if (data === "jsonParseError") {
+    console.log("==> " + "Error\n".red + "\tJSON parse error: " + file);
     process.exit(1);
   }
   const courseClass = getCourseClass(courseID);
@@ -140,12 +148,11 @@ function readData(file) {
     content = fs.readFileSync(file, "utf8");
     data = JSON.parse(content);
   } catch (e) {
-    if (e.code === "ENOENT") {  // file not exist
-      console.log("==> " + "Warning\n".yellow + "\tFile not found: " + file);
-    } else if (e instanceof SyntaxError) {  // file is empty
-      console.log("==> " + "Warning\n".yellow + "\tFile is not a valid JSON file: " + file);
+    if (e.code === "ENOENT") {  // file not found
+      return "fileNotFound";
+    } else if (e instanceof SyntaxError) {  // JSON parse error
+      return "jsonParseError";
     }
-    return undefined;
   }
   return data;
 }
@@ -209,10 +216,17 @@ function add(file, courseID, s, option = "--adapt") {
     url = parseJSON(s, option);
   }
   let data = readData(file);
+  if (data === "fileNotFound") {
+    console.log("==> " + "Warning\n".yellow + "\tFile not found: " + file);
+    data = null;
+  } else if (data === "jsonParseError") {
+    console.log("==> " + "Warning\n".red + "\tJSON parse error: " + file);
+    data = null;
+  }
   const split = courseID.split("-");
   const courseClass = split[0] + "-" + split[1];
   let num = parseInt(split[2]);
-  if (data === undefined) {
+  if (data === null) {
     data = {};
     data[courseClass] = [];
     if (!num) {
@@ -367,7 +381,11 @@ function parseJSON(s, option) {
 
 function download(file, courseID) {
   let data = readData(file);
-  if (data === undefined) {
+  if (data === "fileNotFound") {
+    console.log("==> " + "Error\n".red + "\tFile not found.");
+    process.exit(1);
+  } else if (data === "jsonParseError") {
+    console.log("==> " + "Error\n".red + "\tJSON parse error.");
     process.exit(1);
   }
   const courseClass = getCourseClass(courseID);
