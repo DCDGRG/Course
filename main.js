@@ -194,7 +194,7 @@ function add(file, courseID, s, option = "--adapt") {
   }
   let obj, url;
   courseUrlRegExpr = /^(?:http:\/\/newesxidian\.chaoxing\.com\/live\/viewNewCourseLive1\?isStudent=1&liveId=)\d+$/  // 测试是否为课程回放页面 URL
-  videoUrlRegExpr = /^(?:http:\/\/vodvtdu\d\.xidian\.edu\.cn:8092\/file\/cloud:\/\/10.168.76.10:6201\/HIKCLOUD\/accessid\/NUVQYWFpMEp6c0ppVVJkdFVMbDc5N3VVZjU1MWw4Szc2ODEyOGYyejdHNzkxN2FJMlhYNmQyNzQ0ZDNpTDM2\/accesskey\/a3gxcEs3SVNiN1lCeTFoOW80OThPb3o4N3I3R3hBQnpFajY3NUk3NVJ6VDdUNDdubTQ4UzQxNDUwN3RRZDJN\/bucket\/bucket\/key\/)[a-z0-9]+\/[0-9]\/\d+\/\d+\/\d(?:\/playback\.m3u8)$/  // 测试是否为 m3u8 URL
+  m3u8UrlRegExpr = /^(?:http:\/\/vodvtdu\d\.xidian\.edu\.cn:8092\/file\/cloud:\/\/10.168.76.10:6201\/HIKCLOUD\/accessid\/NUVQYWFpMEp6c0ppVVJkdFVMbDc5N3VVZjU1MWw4Szc2ODEyOGYyejdHNzkxN2FJMlhYNmQyNzQ0ZDNpTDM2\/accesskey\/a3gxcEs3SVNiN1lCeTFoOW80OThPb3o4N3I3R3hBQnpFajY3NUk3NVJ6VDdUNDdubTQ4UzQxNDUwN3RRZDJN\/bucket\/bucket\/key\/)[a-z0-9]+\/[0-9]\/\d+\/\d+\/\d(?:\/playback\.m3u8)$/  // 测试是否为 m3u8 URL
   s = s.replace(/\\/g, "");  // 去掉 s 中的反斜杠
   if (courseUrlRegExpr.test(s)) {  // 输入课程回放 URL
     const pythonProcess = spawnSync('python3', ["./main.py", "get_json", s]);
@@ -210,7 +210,7 @@ function add(file, courseID, s, option = "--adapt") {
       process.exit(1);
     }
     url = parseJSON(obj, option);
-  } else if (videoUrlRegExpr.test(s)) {  // 输入 m3u8 URL
+  } else if (m3u8UrlRegExpr.test(s)) {  // 输入 m3u8 URL
     url = s;
   } else {  // 输入 JSON 对象
     url = parseJSON(s, option);
@@ -254,15 +254,21 @@ function add(file, courseID, s, option = "--adapt") {
           num = 2;
         } else {
           // 已记录课程大于等于 2
-          readlineSync = require("readline-sync");
           let ans = readlineSync.question(
             "==> " +
             "Warning\n\t".yellow +
             courseClass +
             "-1 and " +
             courseClass +
-            "-2 already exist, where do you want to add? [n]\n\tEnter q to cancel.\n"
+            "-2 already exist, where do you want to add? [n]/[show]\n\tEnter q to cancel.\n"
           );
+          if (ans === "show") {
+            console.log("Recorded:".green);
+            show(file, courseID);
+            console.log("Incoming:".red);
+            console.log(url);
+            ans = readlineSync.question("Where do you want to add? [n]\n\tEnter q to cancel.\n");
+          }
           if (ans === "q") {
             return;
           }

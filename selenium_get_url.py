@@ -26,6 +26,5 @@ class InitDriver:
       self.driver.quit()
       return element
     except Exception as e:
-      print(e)
       self.driver.quit()
       return False
