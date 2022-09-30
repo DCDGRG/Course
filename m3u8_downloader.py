@@ -30,7 +30,7 @@ class Downloader:
     return sess
 
   def _download(self, ts_list):
-    self.pool.map(self._worker, ts_list) # 
+    self.pool.map(self._worker, ts_list)
     if self.failed:
       ts_list = self.failed
       self.failed = []
@@ -67,8 +67,8 @@ class Downloader:
   def run(self, m3u8_url, outfile_name):
     self.outfile_name = str(Path.home()) + "/Downloads/" + outfile_name
     if os.path.exists(self.outfile_name):
-      print('File "' + outfile_name + "already exist.")
-      return
+      print('File "' + outfile_name + '" already exist.')
+      exit(0)
     if self.dir and not os.path.isdir(self.dir):
       os.makedirs(self.dir)
     r = self.sess.get(m3u8_url, timeout=10)
