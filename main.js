@@ -175,7 +175,7 @@ function sortObjByKey(obj) {
 }
 
 function add(file, courseID, s, option = "--adapt") {
-  courseIDRegExpr = /^\d{1,2}-\d{1}(?:-\d{1})/;
+  courseIDRegExpr = /^\d{1,2}-\d{1}(?:-\d{1})?/;
   if (!courseIDRegExpr.test(courseID)) {
     showUsage();
     process.exit(1);
