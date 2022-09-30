@@ -175,6 +175,11 @@ function sortObjByKey(obj) {
 }
 
 function add(file, courseID, s, option = "--adapt") {
+  courseIDRegExpr = /^\d{1,2}-\d{1}(?:-\d{1})/;
+  if (!courseIDRegExpr.test(courseID)) {
+    showUsage();
+    process.exit(1);
+  }
   switch (option) {
     case "--mobile":
       option = "mobile";
@@ -375,7 +380,7 @@ function parseJSON(s, option) {
       }
     }
   } catch (e) {
-    let ans = readlineSync.question("==> " + "Warning\n".yellow + "\tJSON parse failed. Do you want to add the content anyway? [Y/n]\n");
+    let ans = readlineSync.question("==> " + "Warning\n".yellow + "\tJSON/URL parse failed. Do you want to add the content anyway? [Y/n]\n");
     if ((ans === "y") || (ans === "Y")) {
       url = s;
     } else {
