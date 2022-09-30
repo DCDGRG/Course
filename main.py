@@ -27,7 +27,7 @@ if __name__ == '__main__':
     OUTPUT_FILE_NAME = sys.argv[3]
     downloader = Downloader(50)
     downloader.run(VIDEO_URL, OUTPUT_FILE_NAME)
-    print("视频已下载到 " + str(Path.home()) + "/Downloads/" + OUTPUT_FILE_NAME)
+    print("Video downloaded to: " + str(Path.home()) + "/Downloads/" + OUTPUT_FILE_NAME)
   else:
     print("Usage: python3 main.py <get_url> <course_url>\n" + 
           "       python3 main.py <download> <m3u8_url> <output_path>")
