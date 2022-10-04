@@ -202,7 +202,7 @@ function add(file, courseID, s, option = "--adapt") {
   m3u8UrlRegExpr = /^(?:http:\/\/vodvtdu\d\.xidian\.edu\.cn:8092\/file\/cloud:\/\/10.168.76.10:6201\/HIKCLOUD\/accessid\/NUVQYWFpMEp6c0ppVVJkdFVMbDc5N3VVZjU1MWw4Szc2ODEyOGYyejdHNzkxN2FJMlhYNmQyNzQ0ZDNpTDM2\/accesskey\/a3gxcEs3SVNiN1lCeTFoOW80OThPb3o4N3I3R3hBQnpFajY3NUk3NVJ6VDdUNDdubTQ4UzQxNDUwN3RRZDJN\/bucket\/bucket\/key\/)[a-z0-9]+\/[0-9]\/\d+\/\d+\/\d(?:\/playback\.m3u8)$/  // 测试是否为 m3u8 URL
   s = s.replace(/\\/g, "");  // 去掉 s 中的反斜杠
   if (courseUrlRegExpr.test(s)) {  // 输入课程回放 URL
-    const pythonProcess = spawnSync('python3', ["./main.py", "get_json", s]);
+    const pythonProcess = spawnSync('.venv/bin/python3', ["./main.py", "get_json", s]);
     obj = pythonProcess.stdout;
     let err = pythonProcess.stderr;
     if (err.toString() !== "") {
@@ -410,7 +410,7 @@ function download(file, courseID) {
     const num = parseInt(courseID.split("-")[2]);
     url = data[courseClass][num - 1];
     if (url) {
-      spawnSync('python3', ["./main.py", "download", url, file.slice(0, file.indexOf(".")) + courseID + ".mp4"], { stdio: 'inherit' });
+      spawnSync('.venv/bin/python3', ["./main.py", "download", url, file.slice(0, file.indexOf(".")) + courseID + ".mp4"], { stdio: 'inherit' });
     } else {
       console.log("==> " + "Error\n".red + "\tNo data");
       process.exit(1);
@@ -418,7 +418,7 @@ function download(file, courseID) {
   } else {
     for (let url of data[courseClass]) {
       if (url) {
-        spawnSync('python3', ["./main.py", "download", url, file.slice(0, file.indexOf(".")) + courseClass + "-" + (data[courseClass].indexOf(url) + 1) + ".mp4"], { stdio: 'inherit' });
+        spawnSync('.venv/bin/python3', ["./main.py", "download", url, file.slice(0, file.indexOf(".")) + courseClass + "-" + (data[courseClass].indexOf(url) + 1) + ".mp4"], { stdio: 'inherit' });
       }
     }
   }
