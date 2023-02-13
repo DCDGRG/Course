@@ -6,7 +6,10 @@ from pathlib import Path
 
 # 获取 m3u8 url 所在的 JSON 对象
 def get_json(driver_path, course_url):
-  url = InitDriver(driver_path, course_url).get_url()
+  try:
+    url = InitDriver(driver_path, course_url).get_url()
+  except Exception as e:
+    return False
   if url is False:
     return False
   info = url.split('?')[1].split("=")[1]
@@ -21,7 +24,8 @@ if __name__ == '__main__':
     sys.exit(1)
   if sys.argv[1] == "get_json":
     COURSE_URL = sys.argv[2]
-    print(get_json(CHROME_DRIVER_PATH, COURSE_URL))
+    if get_json(CHROME_DRIVER_PATH, COURSE_URL) is False:
+      print("ChromeDriver outdated, please download the latest version from https://chromedriver.chromium.org/downloads", file=sys.stderr)
   elif sys.argv[1] == "download":
     VIDEO_URL = sys.argv[2]
     OUTPUT_FILE_NAME = sys.argv[3]
