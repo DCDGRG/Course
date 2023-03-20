@@ -25,7 +25,10 @@ if __name__ == '__main__':
   if sys.argv[1] == "get_json":
     COURSE_URL = sys.argv[2]
     if get_json(CHROME_DRIVER_PATH, COURSE_URL) is False:
-      print("ChromeDriver outdated, please download the latest version from https://chromedriver.chromium.org/downloads", file=sys.stderr)
+      print("Failed to get course m3u8 file, passible causes:\n\
+      1. Check your URL\n\
+      2. ChromeDriver outdated, please download the latest version from https://chromedriver.chromium.org/home\n\
+      3. Chaoxing is not working", file=sys.stderr)
   elif sys.argv[1] == "download":
     VIDEO_URL = sys.argv[2]
     OUTPUT_FILE_NAME = sys.argv[3]
