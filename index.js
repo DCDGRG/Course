@@ -181,8 +181,8 @@ function add(file, courseID, s, option = "--adapt") {
       process.exit(1);
   }
   let obj, url;
-  courseUrlRegExpr = /^(?:http:\/\/newesxidian\.chaoxing\.com\/live\/viewNewCourseLive1\?isStudent=1&liveId=)\d+$/  // 测试是否为课程回放页面 URL
-  m3u8UrlRegExpr = /^(?:http:\/\/vodvtdu\d\.xidian\.edu\.cn:8092\/file\/cloud:\/\/10.168.76.10:6201\/HIKCLOUD\/accessid\/NUVQYWFpMEp6c0ppVVJkdFVMbDc5N3VVZjU1MWw4Szc2ODEyOGYyejdHNzkxN2FJMlhYNmQyNzQ0ZDNpTDM2\/accesskey\/a3gxcEs3SVNiN1lCeTFoOW80OThPb3o4N3I3R3hBQnpFajY3NUk3NVJ6VDdUNDdubTQ4UzQxNDUwN3RRZDJN\/bucket\/bucket\/key\/)[a-z0-9]+\/[0-9]\/\d+\/\d+\/\d(?:\/playback\.m3u8)$/  // 测试是否为 m3u8 URL
+  let courseUrlRegExpr = /^(?:http:\/\/newesxidian\.chaoxing\.com\/live\/viewNewCourseLive1\?isStudent=1&liveId=)\d+$/  // 测试是否为课程回放页面 URL
+  let m3u8UrlRegExpr = /^(?:http:\/\/vodvtdu\d\.xidian\.edu\.cn:8092\/file\/cloud:\/\/10.168.76.10:6201\/HIKCLOUD\/accessid\/NUVQYWFpMEp6c0ppVVJkdFVMbDc5N3VVZjU1MWw4Szc2ODEyOGYyejdHNzkxN2FJMlhYNmQyNzQ0ZDNpTDM2\/accesskey\/a3gxcEs3SVNiN1lCeTFoOW80OThPb3o4N3I3R3hBQnpFajY3NUk3NVJ6VDdUNDdubTQ4UzQxNDUwN3RRZDJN\/bucket\/bucket\/key\/)[a-z0-9]+\/[0-9]\/\d+\/\d+\/\d(?:\/playback\.m3u8)$/  // 测试是否为 m3u8 URL
   s = s.replace(/\\/g, "");  // 去掉 s 中的反斜杠
   if (courseUrlRegExpr.test(s)) {  // 输入课程回放 URL
     const pythonProcess = spawnSync('.venv/bin/python3', ["./main.py", "get_json", s]);
@@ -226,7 +226,7 @@ function add(file, courseID, s, option = "--adapt") {
   } else {
     // 检查重复
     for (let courseID in data) {
-      let res = data[courseID].findIndex((_url, index) => _url === url);
+      let res = data[courseID].findIndex((_url) => _url === url);
       if (res !== -1) {
         console.log("==> " + "Error\n".red + "\tDuplicated with " + courseID + "-" + (res + 1));
         process.exit(1);
@@ -315,7 +315,11 @@ function showUsage() {
   );
   console.log("       node node.js show <file> <courseWeek-week[-n]>|<ls>");
   console.log("       node node.js rm   <file> <courseWeek-week[-n]>");
-  console.log("<file>: oop = 面向对象程序设计; rg = 软件工程概论; db = 数据库系统; jz = 计算机组成与结构; dm = 数据管理技术; cm = 通信技术基础; bg = 海量数据管理 by = 编译原理");
+  let fileOptions = "<file>: ";
+  for (let opt in course) {
+    fileOptions += `${opt} = ${course[opt]}; `;
+  }
+  console.log(fileOptions);
 }
 
 function getCourseClass(courseID) {
