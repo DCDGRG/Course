@@ -1,4 +1,5 @@
 const course = {
+  jy: "就业指导",
   web: "Web工程",
   gj: "构件与中间件技术",
   sf: "算法分析与设计",
@@ -311,10 +312,11 @@ function add(file, courseID, s, option = "--adapt") {
 
 function showUsage() {
   console.log(
-    "Usage: node main.js <file> <courseWeek-week[-n]> (<JSON>|<URL>) [--mobile|--teacherTrack|--pptVideo]"
+    "Usage: node main.js <file> <courseWeek-week[-n]> <JSON | URL> [--mobile|--teacherTrack|--pptVideo]"
   );
-  console.log("       node node.js show <file> <courseWeek-week[-n]>|<ls>");
-  console.log("       node node.js rm   <file> <courseWeek-week[-n]>");
+  console.log("       npm start show <file> <courseWeek-week[-n]> | ls");
+  console.log("       npm start rm   <file> <courseWeek-week[-n]>");
+  console.log("       npm start download <file> <courseWeek-week[-n]>");
   let fileOptions = "<file>: ";
   for (let opt in course) {
     fileOptions += `${opt} = ${course[opt]}; `;
