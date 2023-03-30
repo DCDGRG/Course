@@ -369,7 +369,7 @@ function parseJSON(s, option) {
       }
     }
   } catch (e) {
-    let ans = readlineSync.question("==> " + "Warning\n".yellow + "\tJSON/URL parse failed. Do you want to add the content anyway? [Y/n]\n");
+    let ans = readlineSync.question("==> " + "Warning\n".yellow + "\tJSON/URL parse failed. Do you want to add the content anyway? [y/N]\n");
     if ((ans === "y") || (ans === "Y")) {
       url = s;
     } else {
